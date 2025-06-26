@@ -47,6 +47,44 @@
                         <option>square-feet</option>
                         <option>acres</option>
                     </optgroup>
+                    <optgroup label="Time">
+                        <option>seconds</option>
+                        <option>minutes</option>
+                        <option>hours</option>
+                        <option>days</option>
+                    </optgroup>
+                    <optgroup label="Speed">
+                        <option>mph</option>
+                        <option>kmh</option>
+                        <option>mps</option>
+                        <option>knots</option>
+                    </optgroup>
+                    <optgroup label="Pressure">
+                        <option>psi</option>
+                        <option>bar</option>
+                        <option>atm</option>
+                        <option>pascal</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Precision Control -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="precision" class="form-label">Decimal Precision:</label>
+                <select class="form-control" id="precision">
+                    <option value="2">2 decimal places</option>
+                    <option value="4">4 decimal places</option>
+                    <option value="6" selected>6 decimal places</option>
+                    <option value="8">8 decimal places</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="notation" class="form-label">Number Format:</label>
+                <select class="form-control" id="notation">
+                    <option value="normal" selected>Normal</option>
+                    <option value="scientific">Scientific Notation</option>
                 </select>
             </div>
         </div>
@@ -55,6 +93,7 @@
         <div class="text-center mb-3">
             <button class="btn btn-outline-light mr-2" onclick="clearHistory()">Clear History</button>
             <button class="btn btn-outline-light mr-2" onclick="toggleTheme()">🌙 Dark Mode</button>
+            <button class="btn btn-outline-light mr-2" onclick="addToFavorites()">⭐ Add to Favorites</button>
             <button class="btn btn-outline-light" onclick="showHelp()">❓ Help</button>
         </div>
         <section id="output">
@@ -100,6 +139,14 @@
             </div>
         </section>
         
+        <!-- Favorites Section -->
+        <section id="favorites" class="mt-5" style="display: none;">
+            <h3 class="text-center mb-3">Favorite Conversions</h3>
+            <div id="favoritesList" class="row">
+                <!-- Favorite items will be added here dynamically -->
+            </div>
+        </section>
+        
         <!-- Conversion History -->
         <section id="history" class="mt-5" style="display: none;">
             <h3 class="text-center mb-3">Conversion History</h3>
@@ -121,10 +168,12 @@
                     <div class="modal-body">
                         <h6>Features:</h6>
                         <ul>
-                            <li><strong>Multiple Unit Categories:</strong> Weight, Length, Temperature, Volume, Area</li>
-                            <li><strong>High Precision:</strong> Results shown with up to 6 decimal places</li>
+                            <li><strong>Multiple Unit Categories:</strong> Weight, Length, Temperature, Volume, Area, Time, Speed, Pressure</li>
+                            <li><strong>Precision Control:</strong> Choose from 2-8 decimal places</li>
+                            <li><strong>Scientific Notation:</strong> Option for very large/small numbers</li>
                             <li><strong>Copy to Clipboard:</strong> Click the copy button next to any result</li>
                             <li><strong>Conversion History:</strong> Automatically saves your recent conversions</li>
+                            <li><strong>Favorites:</strong> Save frequently used conversions</li>
                             <li><strong>Dark/Light Theme:</strong> Toggle between themes</li>
                         </ul>
                         <h6>Supported Units:</h6>
@@ -132,11 +181,14 @@
                             <div class="col-md-6">
                                 <strong>Weight:</strong> lbs, grams, kilograms, ounces<br>
                                 <strong>Length:</strong> meters, miles, inches, feet, centimeters, kilometers<br>
-                                <strong>Temperature:</strong> celsius, fahrenheit, kelvin
+                                <strong>Temperature:</strong> celsius, fahrenheit, kelvin<br>
+                                <strong>Volume:</strong> liters, gallons, milliliters, cups
                             </div>
                             <div class="col-md-6">
-                                <strong>Volume:</strong> liters, gallons, milliliters, cups<br>
-                                <strong>Area:</strong> square meters, square feet, acres
+                                <strong>Area:</strong> square meters, square feet, acres<br>
+                                <strong>Time:</strong> seconds, minutes, hours, days<br>
+                                <strong>Speed:</strong> mph, km/h, m/s, knots<br>
+                                <strong>Pressure:</strong> psi, bar, atm, pascal
                             </div>
                         </div>
                     </div>

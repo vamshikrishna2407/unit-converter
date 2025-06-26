@@ -4,6 +4,22 @@ const input = document.querySelector("#input");
 // Select unit selections
 const unit = document.querySelector("#unit");
 
+// Select precision and notation controls
+const precisionSelect = document.querySelector("#precision");
+const notationSelect = document.querySelector("#notation");
+
+// Formatting helper function
+const formatNumber = (value) => {
+    const precision = parseInt(precisionSelect.value);
+    const notation = notationSelect.value;
+    
+    if (notation === 'scientific') {
+        return value.toExponential(precision);
+    } else {
+        return value.toFixed(precision);
+    }
+};
+
 const convert = () => {
     // Get value of user input and units
     const value = input.value;
@@ -84,6 +100,42 @@ const convert = () => {
         case "acres":
             convertAcres(numValue);
             break;
+        case "seconds":
+            convertSeconds(numValue);
+            break;
+        case "minutes":
+            convertMinutes(numValue);
+            break;
+        case "hours":
+            convertHours(numValue);
+            break;
+        case "days":
+            convertDays(numValue);
+            break;
+        case "mph":
+            convertMph(numValue);
+            break;
+        case "kmh":
+            convertKmh(numValue);
+            break;
+        case "mps":
+            convertMps(numValue);
+            break;
+        case "knots":
+            convertKnots(numValue);
+            break;
+        case "psi":
+            convertPsi(numValue);
+            break;
+        case "bar":
+            convertBar(numValue);
+            break;
+        case "atm":
+            convertAtm(numValue);
+            break;
+        case "pascal":
+            convertPascal(numValue);
+            break;
         default:
             output.style.display = "none";
     }
@@ -132,9 +184,9 @@ const convertLbs = value => {
     card2.querySelector('h4').textContent="Kilograms:"
     card3.querySelector('h4').textContent="Ounces:"
 
-    card1.querySelector('.value').textContent= (value * 453.592).toFixed(6);
-    card2.querySelector('.value').textContent= (value * 0.453592).toFixed(6);
-    card3.querySelector('.value').textContent= (value * 16).toFixed(6);
+    card1.querySelector('.value').textContent= formatNumber(value * 453.592);
+    card2.querySelector('.value').textContent= formatNumber(value * 0.453592);
+    card3.querySelector('.value').textContent= formatNumber(value * 16);
     
     // Hide card 4 for weight conversions
     card4.style.display = 'none';
@@ -224,6 +276,7 @@ unit.addEventListener("input", convert);
 
 // Conversion history functionality
 let conversionHistory = JSON.parse(localStorage.getItem('conversionHistory')) || [];
+let favoriteConversions = JSON.parse(localStorage.getItem('favoriteConversions')) || [];
 
 const addToHistory = (inputValue, inputUnit, outputValue, outputUnit) => {
     const historyItem = {
@@ -241,6 +294,91 @@ const addToHistory = (inputValue, inputUnit, outputValue, outputUnit) => {
     
     localStorage.setItem('conversionHistory', JSON.stringify(conversionHistory));
     updateHistoryDisplay();
+};
+
+const addToFavorites = () => {
+    const value = input.value;
+    const unitValue = unit.value;
+    
+    if (!value || isNaN(value)) {
+        alert('Please enter a valid number first');
+        return;
+    }
+    
+    const favoriteItem = {
+        input: `${value} ${unitValue}`,
+        unit: unitValue,
+        value: value,
+        timestamp: new Date().toLocaleString()
+    };
+    
+    // Check if already in favorites
+    const exists = favoriteConversions.some(fav => 
+        fav.input === favoriteItem.input && fav.unit === favoriteItem.unit
+    );
+    
+    if (exists) {
+        alert('This conversion is already in your favorites!');
+        return;
+    }
+    
+    favoriteConversions.unshift(favoriteItem);
+    
+    // Keep only last 20 favorites
+    if (favoriteConversions.length > 20) {
+        favoriteConversions = favoriteConversions.slice(0, 20);
+    }
+    
+    localStorage.setItem('favoriteConversions', JSON.stringify(favoriteConversions));
+    updateFavoritesDisplay();
+    alert('Added to favorites!');
+};
+
+const updateFavoritesDisplay = () => {
+    const favoritesList = document.getElementById('favoritesList');
+    const favoritesSection = document.getElementById('favorites');
+    
+    if (favoriteConversions.length === 0) {
+        favoritesSection.style.display = 'none';
+        return;
+    }
+    
+    favoritesSection.style.display = 'block';
+    favoritesList.innerHTML = '';
+    
+    favoriteConversions.forEach((item, index) => {
+        const favoriteCard = document.createElement('div');
+        favoriteCard.className = 'col-md-4 mb-3';
+        favoriteCard.innerHTML = `
+            <div class="card bg-warning">
+                <div class="card-body">
+                    <h6 class="card-title text-dark">${item.input}</h6>
+                    <small class="text-muted">${item.timestamp}</small>
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-dark mr-2" onclick="loadFavorite('${item.value}', '${item.unit}')">
+                            🔄 Load
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="removeFavorite(${index})">
+                            🗑️ Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        favoritesList.appendChild(favoriteCard);
+    });
+};
+
+const loadFavorite = (value, unit) => {
+    input.value = value;
+    document.getElementById('unit').value = unit;
+    convert();
+};
+
+const removeFavorite = (index) => {
+    favoriteConversions.splice(index, 1);
+    localStorage.setItem('favoriteConversions', JSON.stringify(favoriteConversions));
+    updateFavoritesDisplay();
 };
 
 const updateHistoryDisplay = () => {
@@ -315,6 +453,53 @@ const showHelp = () => {
 document.addEventListener('DOMContentLoaded', () => {
     applyTheme();
     updateHistoryDisplay();
+    updateFavoritesDisplay();
+});
+
+// Add event listeners for precision changes
+precisionSelect.addEventListener('change', () => {
+    if (input.value && !isNaN(input.value)) {
+        convert();
+    }
+});
+
+notationSelect.addEventListener('change', () => {
+    if (input.value && !isNaN(input.value)) {
+        convert();
+    }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl+H for help
+    if (e.ctrlKey && e.key === 'h') {
+        e.preventDefault();
+        showHelp();
+    }
+    
+    // Ctrl+C for copy first result
+    if (e.ctrlKey && e.key === 'c' && !window.getSelection().toString()) {
+        e.preventDefault();
+        copyToClipboard(1);
+    }
+    
+    // Ctrl+D for clear history
+    if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        clearHistory();
+    }
+    
+    // Ctrl+F for add to favorites
+    if (e.ctrlKey && e.key === 'f') {
+        e.preventDefault();
+        addToFavorites();
+    }
+    
+    // Escape to clear input
+    if (e.key === 'Escape') {
+        input.value = '';
+        document.getElementById('output').style.display = 'none';
+    }
 });
 
 // Additional Length Conversions
@@ -487,6 +672,177 @@ const convertAcres = value => {
     card2.querySelector('.value').textContent= (value * 43560).toFixed(6);
     card3.querySelector('.value').textContent= (value * 0.404686).toFixed(6);
     card4.querySelector('.value').textContent= (value * 0.0015625).toFixed(6);
+    
+    card4.style.display = 'block';
+}
+
+// Time Conversions
+const convertSeconds = value => {
+    card1.querySelector('h4').textContent="Minutes:"
+    card2.querySelector('h4').textContent="Hours:"
+    card3.querySelector('h4').textContent="Days:"
+    card4.querySelector('h4').textContent="Weeks:"
+
+    card1.querySelector('.value').textContent= formatNumber(value / 60);
+    card2.querySelector('.value').textContent= formatNumber(value / 3600);
+    card3.querySelector('.value').textContent= formatNumber(value / 86400);
+    card4.querySelector('.value').textContent= formatNumber(value / 604800);
+    
+    card4.style.display = 'block';
+}
+
+const convertMinutes = value => {
+    card1.querySelector('h4').textContent="Seconds:"
+    card2.querySelector('h4').textContent="Hours:"
+    card3.querySelector('h4').textContent="Days:"
+    card4.querySelector('h4').textContent="Weeks:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 60);
+    card2.querySelector('.value').textContent= formatNumber(value / 60);
+    card3.querySelector('.value').textContent= formatNumber(value / 1440);
+    card4.querySelector('.value').textContent= formatNumber(value / 10080);
+    
+    card4.style.display = 'block';
+}
+
+const convertHours = value => {
+    card1.querySelector('h4').textContent="Seconds:"
+    card2.querySelector('h4').textContent="Minutes:"
+    card3.querySelector('h4').textContent="Days:"
+    card4.querySelector('h4').textContent="Weeks:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 3600);
+    card2.querySelector('.value').textContent= formatNumber(value * 60);
+    card3.querySelector('.value').textContent= formatNumber(value / 24);
+    card4.querySelector('.value').textContent= formatNumber(value / 168);
+    
+    card4.style.display = 'block';
+}
+
+const convertDays = value => {
+    card1.querySelector('h4').textContent="Seconds:"
+    card2.querySelector('h4').textContent="Minutes:"
+    card3.querySelector('h4').textContent="Hours:"
+    card4.querySelector('h4').textContent="Weeks:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 86400);
+    card2.querySelector('.value').textContent= formatNumber(value * 1440);
+    card3.querySelector('.value').textContent= formatNumber(value * 24);
+    card4.querySelector('.value').textContent= formatNumber(value / 7);
+    
+    card4.style.display = 'block';
+}
+
+// Speed Conversions
+const convertMph = value => {
+    card1.querySelector('h4').textContent="Km/h:"
+    card2.querySelector('h4').textContent="m/s:"
+    card3.querySelector('h4').textContent="Knots:"
+    card4.querySelector('h4').textContent="ft/s:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 1.60934);
+    card2.querySelector('.value').textContent= formatNumber(value * 0.44704);
+    card3.querySelector('.value').textContent= formatNumber(value * 0.868976);
+    card4.querySelector('.value').textContent= formatNumber(value * 1.46667);
+    
+    card4.style.display = 'block';
+}
+
+const convertKmh = value => {
+    card1.querySelector('h4').textContent="mph:"
+    card2.querySelector('h4').textContent="m/s:"
+    card3.querySelector('h4').textContent="Knots:"
+    card4.querySelector('h4').textContent="ft/s:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 0.621371);
+    card2.querySelector('.value').textContent= formatNumber(value * 0.277778);
+    card3.querySelector('.value').textContent= formatNumber(value * 0.539957);
+    card4.querySelector('.value').textContent= formatNumber(value * 0.911344);
+    
+    card4.style.display = 'block';
+}
+
+const convertMps = value => {
+    card1.querySelector('h4').textContent="mph:"
+    card2.querySelector('h4').textContent="Km/h:"
+    card3.querySelector('h4').textContent="Knots:"
+    card4.querySelector('h4').textContent="ft/s:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 2.23694);
+    card2.querySelector('.value').textContent= formatNumber(value * 3.6);
+    card3.querySelector('.value').textContent= formatNumber(value * 1.94384);
+    card4.querySelector('.value').textContent= formatNumber(value * 3.28084);
+    
+    card4.style.display = 'block';
+}
+
+const convertKnots = value => {
+    card1.querySelector('h4').textContent="mph:"
+    card2.querySelector('h4').textContent="Km/h:"
+    card3.querySelector('h4').textContent="m/s:"
+    card4.querySelector('h4').textContent="ft/s:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 1.15078);
+    card2.querySelector('.value').textContent= formatNumber(value * 1.852);
+    card3.querySelector('.value').textContent= formatNumber(value * 0.514444);
+    card4.querySelector('.value').textContent= formatNumber(value * 1.68781);
+    
+    card4.style.display = 'block';
+}
+
+// Pressure Conversions
+const convertPsi = value => {
+    card1.querySelector('h4').textContent="Bar:"
+    card2.querySelector('h4').textContent="Atm:"
+    card3.querySelector('h4').textContent="Pascal:"
+    card4.querySelector('h4').textContent="kPa:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 0.0689476);
+    card2.querySelector('.value').textContent= formatNumber(value * 0.068046);
+    card3.querySelector('.value').textContent= formatNumber(value * 6894.76);
+    card4.querySelector('.value').textContent= formatNumber(value * 6.89476);
+    
+    card4.style.display = 'block';
+}
+
+const convertBar = value => {
+    card1.querySelector('h4').textContent="PSI:"
+    card2.querySelector('h4').textContent="Atm:"
+    card3.querySelector('h4').textContent="Pascal:"
+    card4.querySelector('h4').textContent="kPa:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 14.5038);
+    card2.querySelector('.value').textContent= formatNumber(value * 0.986923);
+    card3.querySelector('.value').textContent= formatNumber(value * 100000);
+    card4.querySelector('.value').textContent= formatNumber(value * 100);
+    
+    card4.style.display = 'block';
+}
+
+const convertAtm = value => {
+    card1.querySelector('h4').textContent="PSI:"
+    card2.querySelector('h4').textContent="Bar:"
+    card3.querySelector('h4').textContent="Pascal:"
+    card4.querySelector('h4').textContent="kPa:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 14.6959);
+    card2.querySelector('.value').textContent= formatNumber(value * 1.01325);
+    card3.querySelector('.value').textContent= formatNumber(value * 101325);
+    card4.querySelector('.value').textContent= formatNumber(value * 101.325);
+    
+    card4.style.display = 'block';
+}
+
+const convertPascal = value => {
+    card1.querySelector('h4').textContent="PSI:"
+    card2.querySelector('h4').textContent="Bar:"
+    card3.querySelector('h4').textContent="Atm:"
+    card4.querySelector('h4').textContent="kPa:"
+
+    card1.querySelector('.value').textContent= formatNumber(value * 0.000145038);
+    card2.querySelector('.value').textContent= formatNumber(value * 0.00001);
+    card3.querySelector('.value').textContent= formatNumber(value * 0.00000986923);
+    card4.querySelector('.value').textContent= formatNumber(value * 0.001);
     
     card4.style.display = 'block';
 }
