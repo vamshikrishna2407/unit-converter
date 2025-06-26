@@ -20,6 +20,7 @@ h1 {
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     border-radius: 15px;
     overflow: hidden;
+    flex-wrap: nowrap;
 }
 
 .form-control {
@@ -34,6 +35,20 @@ h1 {
     box-shadow: none;
     border: none;
     background: rgba(255,255,255,1);
+}
+
+#unitSearch {
+    border-left: 1px solid rgba(0,0,0,0.1);
+    border-right: 1px solid rgba(0,0,0,0.1);
+    background: rgba(255,255,255,0.95);
+    color: #666;
+    font-size: 0.9rem;
+    padding: 0.8rem;
+}
+
+#unitSearch::placeholder {
+    color: #999;
+    font-size: 0.85rem;
 }
 
 .btn-light {

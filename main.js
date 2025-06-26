@@ -3,21 +3,123 @@ const input = document.querySelector("#input");
 
 // Select unit selections
 const unit = document.querySelector("#unit");
+const unitSearch = document.querySelector("#unitSearch");
 
 // Select precision and notation controls
 const precisionSelect = document.querySelector("#precision");
 const notationSelect = document.querySelector("#notation");
+
+// Unit search functionality
+const allUnits = [
+    {value: 'lbs', label: 'Pounds', category: 'Weight'},
+    {value: 'grams', label: 'Grams', category: 'Weight'},
+    {value: 'kilograms', label: 'Kilograms', category: 'Weight'},
+    {value: 'ounces', label: 'Ounces', category: 'Weight'},
+    {value: 'meters', label: 'Meters', category: 'Length'},
+    {value: 'miles', label: 'Miles', category: 'Length'},
+    {value: 'inches', label: 'Inches', category: 'Length'},
+    {value: 'feet', label: 'Feet', category: 'Length'},
+    {value: 'centimeters', label: 'Centimeters', category: 'Length'},
+    {value: 'kilometers', label: 'Kilometers', category: 'Length'},
+    {value: 'celsius', label: 'Celsius', category: 'Temperature'},
+    {value: 'fahrenheit', label: 'Fahrenheit', category: 'Temperature'},
+    {value: 'kelvin', label: 'Kelvin', category: 'Temperature'},
+    {value: 'liters', label: 'Liters', category: 'Volume'},
+    {value: 'gallons', label: 'Gallons', category: 'Volume'},
+    {value: 'milliliters', label: 'Milliliters', category: 'Volume'},
+    {value: 'cups', label: 'Cups', category: 'Volume'},
+    {value: 'square-meters', label: 'Square Meters', category: 'Area'},
+    {value: 'square-feet', label: 'Square Feet', category: 'Area'},
+    {value: 'acres', label: 'Acres', category: 'Area'},
+    {value: 'seconds', label: 'Seconds', category: 'Time'},
+    {value: 'minutes', label: 'Minutes', category: 'Time'},
+    {value: 'hours', label: 'Hours', category: 'Time'},
+    {value: 'days', label: 'Days', category: 'Time'},
+    {value: 'mph', label: 'Miles per Hour', category: 'Speed'},
+    {value: 'kmh', label: 'Kilometers per Hour', category: 'Speed'},
+    {value: 'mps', label: 'Meters per Second', category: 'Speed'},
+    {value: 'knots', label: 'Knots', category: 'Speed'},
+    {value: 'psi', label: 'PSI', category: 'Pressure'},
+    {value: 'bar', label: 'Bar', category: 'Pressure'},
+    {value: 'atm', label: 'Atmosphere', category: 'Pressure'},
+    {value: 'pascal', label: 'Pascal', category: 'Pressure'}
+];
+
+unitSearch.addEventListener('input', debounce(() => {
+    const searchTerm = unitSearch.value.toLowerCase().trim();
+    
+    if (!searchTerm) {
+        unitSearch.removeAttribute('title');
+        return;
+    }
+    
+    const filteredUnits = allUnits.filter(unit => 
+        unit.value.toLowerCase().includes(searchTerm) || 
+        unit.label.toLowerCase().includes(searchTerm) ||
+        unit.category.toLowerCase().includes(searchTerm)
+    );
+    
+    // If there's an exact match, select it
+    const exactMatch = filteredUnits.find(unit => 
+        unit.value.toLowerCase() === searchTerm || 
+        unit.label.toLowerCase() === searchTerm
+    );
+    
+    if (exactMatch) {
+        unit.value = exactMatch.value;
+        unitSearch.value = '';
+        unitSearch.removeAttribute('title');
+        if (input.value && !isNaN(input.value)) {
+            convert();
+        }
+        return;
+    }
+    
+    // Show suggestions tooltip
+    if (filteredUnits.length > 0) {
+        const suggestions = filteredUnits.slice(0, 5).map(u => u.label).join(', ');
+        unitSearch.setAttribute('title', `Suggestions: ${suggestions}`);
+        
+        // Auto-complete if only one match
+        if (filteredUnits.length === 1) {
+            unit.value = filteredUnits[0].value;
+            unitSearch.value = filteredUnits[0].label;
+            if (input.value && !isNaN(input.value)) {
+                convert();
+            }
+        }
+    } else {
+        unitSearch.setAttribute('title', 'No units found');
+    }
+}, 300));
 
 // Formatting helper function
 const formatNumber = (value) => {
     const precision = parseInt(precisionSelect.value);
     const notation = notationSelect.value;
     
+    if (isNaN(value) || !isFinite(value)) {
+        return 'Invalid';
+    }
+    
     if (notation === 'scientific') {
         return value.toExponential(precision);
     } else {
         return value.toFixed(precision);
     }
+};
+
+// Debounce function for performance
+const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 };
 
 const convert = () => {
