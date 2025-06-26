@@ -10,9 +10,11 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mb-4">Unit Converter</h1>
+        <h1 class="text-center mb-4">Advanced Unit Converter</h1>
+        
+        <!-- Main conversion interface -->
         <div class="input-group mb-3">
-            <input type="number" class="form-control" id="input" name="input" placeholder="Enter value here...">
+            <input type="number" class="form-control" id="input" name="input" placeholder="Enter value here..." step="any">
             <div class="input-group-append">
                 <select class="btn btn-light" name="unit" id="unit">
                     <optgroup label="Weight">
@@ -25,34 +27,128 @@
                         <option>meters</option>
                         <option>miles</option>
                         <option>inches</option>
+                        <option>feet</option>
+                        <option>centimeters</option>
+                        <option>kilometers</option>
+                    </optgroup>
+                    <optgroup label="Temperature">
+                        <option>celsius</option>
+                        <option>fahrenheit</option>
+                        <option>kelvin</option>
+                    </optgroup>
+                    <optgroup label="Volume">
+                        <option>liters</option>
+                        <option>gallons</option>
+                        <option>milliliters</option>
+                        <option>cups</option>
+                    </optgroup>
+                    <optgroup label="Area">
+                        <option>square-meters</option>
+                        <option>square-feet</option>
+                        <option>acres</option>
                     </optgroup>
                 </select>
             </div>
         </div>
+        
+        <!-- Action buttons -->
+        <div class="text-center mb-3">
+            <button class="btn btn-outline-light mr-2" onclick="clearHistory()">Clear History</button>
+            <button class="btn btn-outline-light mr-2" onclick="toggleTheme()">🌙 Dark Mode</button>
+            <button class="btn btn-outline-light" onclick="showHelp()">❓ Help</button>
+        </div>
         <section id="output">
-            <!-- Gram -->
+            <!-- Card 1 -->
             <div class="card bg-primary mb-3">
                 <div class="card-header" id="card-1">
                     <h4></h4>
-                    <div></div>
+                    <div>
+                        <span class="value"></span>
+                        <button class="copy-btn" onclick="copyToClipboard(1)">📋 Copy</button>
+                    </div>
                 </div>
             </div>
-            <!-- Kilogram -->
+            <!-- Card 2 -->
             <div class="card bg-success mb-3">
                 <div class="card-header" id="card-2">
                     <h4></h4>
-                    <div></div>
+                    <div>
+                        <span class="value"></span>
+                        <button class="copy-btn" onclick="copyToClipboard(2)">📋 Copy</button>
+                    </div>
                 </div>
             </div>
-            <!-- Ounce -->
-            <div class="card bg-danger">
+            <!-- Card 3 -->
+            <div class="card bg-danger mb-3">
                 <div class="card-header" id="card-3">
                     <h4></h4>
-                    <div></div>
+                    <div>
+                        <span class="value"></span>
+                        <button class="copy-btn" onclick="copyToClipboard(3)">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Card 4 -->
+            <div class="card bg-info mb-3">
+                <div class="card-header" id="card-4">
+                    <h4></h4>
+                    <div>
+                        <span class="value"></span>
+                        <button class="copy-btn" onclick="copyToClipboard(4)">📋 Copy</button>
+                    </div>
                 </div>
             </div>
         </section>
+        
+        <!-- Conversion History -->
+        <section id="history" class="mt-5" style="display: none;">
+            <h3 class="text-center mb-3">Conversion History</h3>
+            <div id="historyList" class="row">
+                <!-- History items will be added here dynamically -->
+            </div>
+        </section>
+        
+        <!-- Help Modal -->
+        <div class="modal fade" id="helpModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content bg-dark text-white">
+                    <div class="modal-header">
+                        <h5 class="modal-title">How to Use Advanced Unit Converter</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Features:</h6>
+                        <ul>
+                            <li><strong>Multiple Unit Categories:</strong> Weight, Length, Temperature, Volume, Area</li>
+                            <li><strong>High Precision:</strong> Results shown with up to 6 decimal places</li>
+                            <li><strong>Copy to Clipboard:</strong> Click the copy button next to any result</li>
+                            <li><strong>Conversion History:</strong> Automatically saves your recent conversions</li>
+                            <li><strong>Dark/Light Theme:</strong> Toggle between themes</li>
+                        </ul>
+                        <h6>Supported Units:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Weight:</strong> lbs, grams, kilograms, ounces<br>
+                                <strong>Length:</strong> meters, miles, inches, feet, centimeters, kilometers<br>
+                                <strong>Temperature:</strong> celsius, fahrenheit, kelvin
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Volume:</strong> liters, gallons, milliliters, cups<br>
+                                <strong>Area:</strong> square meters, square feet, acres
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <!-- Bootstrap JS for modal functionality -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
